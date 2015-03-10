@@ -1,0 +1,9 @@
+gdata==2.0.18
+jira==0.41
+oauthlib==0.7.2
+ordereddict==1.1
+requests==2.5.3
+requests-oauthlib==0.4.2
+requests-toolbelt==0.3.1
+six==1.9.0
+tlslite==0.4.8
