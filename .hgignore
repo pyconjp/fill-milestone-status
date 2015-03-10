@@ -1,0 +1,9 @@
+syntax: glob
+*~
+bin
+lib
+include
+share
+.Python
+.venv
+config.ini
