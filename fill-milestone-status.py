@@ -11,12 +11,7 @@ import ConfigParser
 
 from jira import JIRA
 
-import gdata
-from gdata.spreadsheet import text_db
 from google_spreadsheet.api import SpreadsheetAPI
-
-import gdata.auth
-import gdata.docs.service
 
 # JIRA サーバー
 SERVER='https://pyconjp.atlassian.net'
