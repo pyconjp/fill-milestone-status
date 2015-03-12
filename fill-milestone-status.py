@@ -34,6 +34,10 @@ def fill_milestone_status(worksheet, jira):
             # 状態、期限の列を更新
             row[u'状態'] = issue.fields.status.name
             row[u'期限'] = issue.fields.duedate
+            try:
+                row[u'担当'] = issue.fields.assignee.name
+            except:
+                row[u'担当'] = u'未割り当て'
             row = worksheet.update_row(row)
 
 if __name__ == '__main__':
