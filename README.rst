@@ -9,7 +9,7 @@ fill-milestone-status.py fill PyCon JP milestone(Google Spreadsheet) status from
   $ . .venv/bin/activate
   (.venv)$ pip install -r requirements.txt
   (.venv)$ cp config.ini.sample config.ini
-  (.venv)$ vi config.ini.sample
+  (.venv)$ vi config.ini
   (.venv)$ ./fill-milestone-status.py
 
 config.ini.sample::
