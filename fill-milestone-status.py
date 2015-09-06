@@ -7,11 +7,12 @@ PyCon JP 2015 マイルストーンのスプレッドシートで、各JIRAタ�
 https://docs.google.com/spreadsheet/ccc?key=0Avbw8GEmTD5OdDJkVHRaVjBFWWZ0VTdtdEMyY0NaS0E#gid=16
 """
 
-import ConfigParser
+import configparser
+import json
 
+import gspread
 from jira import JIRA
-
-from google_spreadsheet.api import SpreadsheetAPI
+from oauth2client.client import SignedJwtAssertionCredentials
 
 # JIRA サーバー
 SERVER='https://pyconjp.atlassian.net'
@@ -21,38 +22,43 @@ def fill_milestone_status(worksheet, jira):
     指定されたシートのマイルストーンの情報を更新する
     """
 
-    for row in worksheet.get_rows():
-        issue_id = row['jira']
-        if issue_id != None:
+    for row in range(2, worksheet.row_count + 1):
+        # J列(JIRAのissue id)のデータを取得
+        issue_id = worksheet.cell(row, 10).value
+        if issue_id.startswith('HTJ'):
             # issue_id(HTC-XXX)からissueを取得
             issue = jira.issue(issue_id)
             # 状態、期限の列を更新
-            row[u'状態'] = issue.fields.status.name
-            row[u'期限'] = issue.fields.duedate
+            worksheet.update_cell(row, 7, issue.fields.status.name)
+            worksheet.update_cell(row, 8, issue.fields.duedate)
+            # 担当者の列を更新
             try:
-                row[u'担当'] = issue.fields.assignee.name
+                worksheet.update_cell(row, 9, issue.fields.assignee.name)
             except:
-                row[u'担当'] = u'未割り当て'
-            row = worksheet.update_row(row)
+                worksheet.update_cell(row, 9, '未割り当て')
 
 if __name__ == '__main__':
     # config.ini からパラメーターを取得
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.read('config.ini')
     jira_auth = config.get('JIRA', 'username'), config.get('JIRA', 'password')
-    google_auth = config.get('Google', 'username'), config.get('Google', 'password')
 
     # JIRA に接続
     options = {'server': SERVER}
     jira = JIRA(options=options, basic_auth=jira_auth)
 
     # Google Spreadsheetに接続
-    api = SpreadsheetAPI(config.get('Google', 'username'),
-                         config.get('Google', 'password'),
-                         "hogehoge")
-    spreadsheet_key = '0Avbw8GEmTD5OdDJkVHRaVjBFWWZ0VTdtdEMyY0NaS0E'
-    for title, key in api.list_worksheets(spreadsheet_key):
-        if title == '2015マイルストーン':
-            worksheet = api.get_worksheet(spreadsheet_key, key)
-            # ワークシートのマイルストーンの状態を入れる
-            fill_milestone_status(worksheet, jira)
+    json_key = json.load(open('myproject.json'))
+    email = json_key['client_email']
+    key = json_key['private_key'].encode('utf-8')
+    scope = ['https://spreadsheets.google.com/feeds']
+    credentials = SignedJwtAssertionCredentials(email, key, scope)
+
+    gc = gspread.authorize(credentials)
+
+    spreadsheet_key = '1CROMPqHVT1TqpJFNdjDJUDPhVeqwYPDfq6JX61nNpw8'
+    spreadsheet = gc.open_by_key(spreadsheet_key)
+    worksheet =  spreadsheet.worksheet('2015マイルストーン')
+
+    # ワークシートのマイルストーンの状態を入れる
+    fill_milestone_status(worksheet, jira)
