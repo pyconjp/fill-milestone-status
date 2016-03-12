@@ -25,8 +25,8 @@ def fill_milestone_status(worksheet, jira):
     for row in range(2, worksheet.row_count + 1):
         # J列(JIRAのissue id)のデータを取得
         issue_id = worksheet.cell(row, 10).value
-        if issue_id.startswith('HTJ'):
-            # issue_id(HTC-XXX)からissueを取得
+        if issue_id.startswith('SAR'):
+            # issue_id(SAR-XXX)からissueを取得
             issue = jira.issue(issue_id)
             # 状態、期限の列を更新
             worksheet.update_cell(row, 7, issue.fields.status.name)
