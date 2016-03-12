@@ -56,9 +56,9 @@ if __name__ == '__main__':
 
     gc = gspread.authorize(credentials)
 
-    spreadsheet_key = '1CROMPqHVT1TqpJFNdjDJUDPhVeqwYPDfq6JX61nNpw8'
+    spreadsheet_key = '1jqFebgLJpZT0MpTI9op0wuOJMkZmcZWcPFhiBzHllZM'
     spreadsheet = gc.open_by_key(spreadsheet_key)
-    worksheet =  spreadsheet.worksheet('2015マイルストーン')
+    worksheet =  spreadsheet.worksheet('2016マイルストーン')
 
     # ワークシートのマイルストーンの状態を入れる
     fill_milestone_status(worksheet, jira)
