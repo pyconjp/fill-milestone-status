@@ -32,7 +32,7 @@ $ . env/bin/activate
 1. Select `Permissions` menu on Google Developer Console
 2. Select `Service accounts` -> Click `Create service account` button
 3. Enter name of service account -> check `urnish a new private key` -> `JSON` -> Click `Create` button
-4. Save `*.json` file
+4. Save `myproject.json` file
 
 ## Share setting on Google spreadsheet
 
