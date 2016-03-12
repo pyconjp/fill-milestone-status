@@ -1,8 +1,8 @@
 # Fill minstone status
 
-fill-milestone-status.py fill PyCon JP milestone(Google Spreadsheet) status from JIRA.
+fill PyCon JP milestone(Google Spreadsheet) status from JIRA.
 
-## Pre
+## Preparation for Mac
 
 ```
 $ xcode-select --install
@@ -15,7 +15,7 @@ $ git clone git@github.com:pyconjp/fill-milestone-status.git
 $ cd fill-milestone-status
 $ virtualenv -p python3 env
 $ . env/bin/activate
-(.venv)$ pip install -r requirements.txt
+(env)$ pip install -r requirements.txt
 ```
 
 ## Enable Google Drive API
@@ -42,9 +42,9 @@ $ . env/bin/activate
 
 
 ```
-(.venv)$ cp config.ini.sample config.ini
-(.venv)$ vi config.ini
-(.venv)$ ./fill-milestone-status.py
+(env)$ cp config.ini.sample config.ini
+(env)$ vi config.ini
+(env)$ ./fill-milestone-status.py
 ```
 
 ## Confirm access to spreadsheet
@@ -69,12 +69,11 @@ worksheet =  spreadsheet.sheet1
 print(worksheet.title)
 ```
 
-## JIRA Settings
+## Enter JIRA username/password
 
 ```
-(.venv)$ cp config.ini.sample config.ini
-(.venv)$ vi config.ini
-(.venv)$ ./fill-milestone-status.py
+(env)$ cp config.ini.sample config.ini
+(env)$ vi config.ini
 ```
 
 config.ini.sample
@@ -83,6 +82,12 @@ config.ini.sample
 [JIRA]
 username = JIRA username
 password = JIRA password
+```
+
+## Run script
+
+```
+(env)$ ./fill-milestone-status.py
 ```
 
 # Reference
