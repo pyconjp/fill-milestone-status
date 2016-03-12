@@ -14,8 +14,29 @@ import gspread
 from jira import JIRA
 from oauth2client.client import SignedJwtAssertionCredentials
 
-# JIRA サーバー
+# JIRA server URL
 SERVER='https://pyconjp.atlassian.net'
+
+# jira id/slack id dict
+JIRA_SLACK = {
+    "angela": "sayaka_angela",
+    "massa142": "arai",
+    "satisfaction": "manzoku",
+    "kitahara": "surgo",
+    "Ds110": "ds110",
+    "checkpoint": "sekine",
+    "hidemasuoka112": "hidetomasuoka",
+    "koedoyoshida": "yoshida",
+    "yasushihashimoto": "yhashimoto",
+    "yutaro.muta": "yutaro",
+}
+
+def get_slack_id(jira_id):
+    """
+    convert JIRA id to slack id
+    """
+
+    return JIRA_SLACK.get(jira_id, jira_id)
 
 def fill_milestone_status(worksheet, jira):
     """
@@ -33,10 +54,30 @@ def fill_milestone_status(worksheet, jira):
             worksheet.update_cell(row, 8, issue.fields.duedate)
             # 担当者の列を更新
             try:
-                worksheet.update_cell(row, 9, issue.fields.assignee.name)
+                jira_id = issue.fields.assignee.name
+                slack = get_slack_id(jira_id)
+                name = '=HYPERLINK("https://pyconjp.slack.com/team/{}","@{}")'.format(slack, slack)
+                worksheet.update_cell(row, 9, name)
             except:
                 worksheet.update_cell(row, 9, '未割り当て')
 
+                
+def get_google_connection():
+    '''
+    get google connection for gspread
+    '''
+
+    # Google Spreadsheetに接続
+    json_key = json.load(open('myproject.json'))
+    email = json_key['client_email']
+    key = json_key['private_key'].encode('utf-8')
+    scope = ['https://spreadsheets.google.com/feeds']
+    credentials = SignedJwtAssertionCredentials(email, key, scope)
+
+    gc = gspread.authorize(credentials)
+
+    return gc
+    
 if __name__ == '__main__':
     # config.ini からパラメーターを取得
     config = configparser.ConfigParser()
@@ -47,14 +88,7 @@ if __name__ == '__main__':
     options = {'server': SERVER}
     jira = JIRA(options=options, basic_auth=jira_auth)
 
-    # Google Spreadsheetに接続
-    json_key = json.load(open('myproject.json'))
-    email = json_key['client_email']
-    key = json_key['private_key'].encode('utf-8')
-    scope = ['https://spreadsheets.google.com/feeds']
-    credentials = SignedJwtAssertionCredentials(email, key, scope)
-
-    gc = gspread.authorize(credentials)
+    gc = get_google_connection()
 
     spreadsheet_key = '1jqFebgLJpZT0MpTI9op0wuOJMkZmcZWcPFhiBzHllZM'
     spreadsheet = gc.open_by_key(spreadsheet_key)
