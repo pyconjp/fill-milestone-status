@@ -45,21 +45,24 @@ def fill_milestone_status(worksheet, jira):
 
     for row in range(2, worksheet.row_count + 1):
         # J列(JIRAのissue id)のデータを取得
-        issue_id = worksheet.cell(row, 10).value
+        issue_id = worksheet.cell(row, 12).value
         if issue_id.startswith('SAR'):
             # issue_id(SAR-XXX)からissueを取得
             issue = jira.issue(issue_id)
-            # 状態、期限の列を更新
-            worksheet.update_cell(row, 7, issue.fields.status.name)
-            worksheet.update_cell(row, 8, issue.fields.duedate)
+            # 優先度、更新日、ステータス、期限の列を更新
+            worksheet.update_cell(row, 7, issue.fields.priority.name)
+            updated, _ = issue.fields.updated.split('T')
+            worksheet.update_cell(row, 8, updated)
+            worksheet.update_cell(row, 9, issue.fields.status.name)
+            worksheet.update_cell(row, 10, issue.fields.duedate)
             # 担当者の列を更新
             try:
                 jira_id = issue.fields.assignee.name
                 slack = get_slack_id(jira_id)
                 name = '=HYPERLINK("https://pyconjp.slack.com/team/{}","@{}")'.format(slack, slack)
-                worksheet.update_cell(row, 9, name)
+                worksheet.update_cell(row, 11, name)
             except:
-                worksheet.update_cell(row, 9, '未割り当て')
+                worksheet.update_cell(row, 11, '未割り当て')
 
                 
 def get_google_connection():
