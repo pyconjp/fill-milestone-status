@@ -2,9 +2,9 @@
 # -*- coding: utf-8 -*-
 
 """
-PyCon JP 2015 マイルストーンのスプレッドシートで、各JIRAタスクのステータスを
+PyCon JP 2016 マイルストーンのスプレッドシートで、各JIRAタスクのステータスなどを
 取得し、スプレードッシート上に書き込むスクリプト
-https://docs.google.com/spreadsheet/ccc?key=0Avbw8GEmTD5OdDJkVHRaVjBFWWZ0VTdtdEMyY0NaS0E#gid=16
+https://docs.google.com/spreadsheets/d/1jqFebgLJpZT0MpTI9op0wuOJMkZmcZWcPFhiBzHllZM/edit#gid=1989509719
 """
 
 import configparser
@@ -38,6 +38,44 @@ def get_slack_id(jira_id):
 
     return JIRA_SLACK.get(jira_id, jira_id)
 
+def create_hyperlink(url, target):
+    '''
+    create hyperlink text for Google Spreadsheet
+    '''
+    hyperlink = '=HYPERLINK("{}","{}")'.format(url, target)
+    return hyperlink
+
+def update_row(worksheet, row, issue):
+    """
+    update row of spreadsheet by parameter of issue
+
+    :param worksheet: Google Spreadsheet
+    :param row: row number
+    :param issue: JIRA issue object
+    """
+
+    # issue への link を追加
+    issue_url = '{}/browse/{}'.format(SERVER, issue)
+    worksheet.update_cell(row, 12, create_hyperlink(issue_url, issue))
+
+    # 優先度、更新日、ステータス、期限の列を更新
+    worksheet.update_cell(row, 7, issue.fields.priority.name)
+    updated, _ = issue.fields.updated.split('T')
+    worksheet.update_cell(row, 8, updated)
+    worksheet.update_cell(row, 9, issue.fields.status.name)
+    worksheet.update_cell(row, 10, issue.fields.duedate)
+
+    # 担当者の列を更新
+    try:
+        jira_id = issue.fields.assignee.name
+        slack = get_slack_id(jira_id)
+        prof_url = 'https://pyconjp.slack.com/team/' + slack
+        slack_link = create_hyperlink(prof_url, '@' + slack)
+        worksheet.update_cell(row, 11, slack_link)
+    except:
+        worksheet.update_cell(row, 11, '未割り当て')
+
+    
 def fill_milestone_status(worksheet, jira):
     """
     指定されたシートのマイルストーンの情報を更新する
@@ -49,21 +87,7 @@ def fill_milestone_status(worksheet, jira):
         if issue_id.startswith('SAR'):
             # issue_id(SAR-XXX)からissueを取得
             issue = jira.issue(issue_id)
-            # 優先度、更新日、ステータス、期限の列を更新
-            worksheet.update_cell(row, 7, issue.fields.priority.name)
-            updated, _ = issue.fields.updated.split('T')
-            worksheet.update_cell(row, 8, updated)
-            worksheet.update_cell(row, 9, issue.fields.status.name)
-            worksheet.update_cell(row, 10, issue.fields.duedate)
-            # 担当者の列を更新
-            try:
-                jira_id = issue.fields.assignee.name
-                slack = get_slack_id(jira_id)
-                name = '=HYPERLINK("https://pyconjp.slack.com/team/{}","@{}")'.format(slack, slack)
-                worksheet.update_cell(row, 11, name)
-            except:
-                worksheet.update_cell(row, 11, '未割り当て')
-
+            update_row(worksheet, row, issue)
                 
 def get_google_connection():
     '''
