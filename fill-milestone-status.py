@@ -9,9 +9,10 @@ https://docs.google.com/spreadsheets/d/1jqFebgLJpZT0MpTI9op0wuOJMkZmcZWcPFhiBzHl
 
 import configparser
 import json
+import logging
 
 import gspread
-from jira import JIRA
+from jira import JIRA, JIRAError
 from oauth2client.client import SignedJwtAssertionCredentials
 
 # JIRA server URL
@@ -83,12 +84,18 @@ def fill_milestone_status(worksheet, jira):
 
     for row in range(2, worksheet.row_count + 1):
         # J列(JIRAのissue id)のデータを取得
-        issue_id = worksheet.cell(row, 12).value
+        issue_id = worksheet.cell(row, 12).value.strip()
+        status = worksheet.cell(row, 9).value
         if issue_id.startswith('SAR'):
-            # issue_id(SAR-XXX)からissueを取得
-            issue = jira.issue(issue_id)
-            update_row(worksheet, row, issue)
-                
+            try:
+                # issue_id(SAR-XXX)からissueを取得
+                issue = jira.issue(issue_id)
+                # スプレッドシート上の情報を更新する
+                update_row(worksheet, row, issue)
+            except JIRAError:
+                pass
+
+
 def get_google_connection():
     '''
     get google connection for gspread
