@@ -13,7 +13,7 @@ import logging
 
 import gspread
 from jira import JIRA, JIRAError
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 
 # JIRA server URL
 SERVER='https://pyconjp.atlassian.net'
@@ -102,12 +102,12 @@ def get_google_connection():
     '''
 
     # Google Spreadsheetに接続
-    json_key = json.load(open('myproject.json'))
-    email = json_key['client_email']
-    key = json_key['private_key'].encode('utf-8')
-    scope = ['https://spreadsheets.google.com/feeds']
-    credentials = SignedJwtAssertionCredentials(email, key, scope)
 
+    scope = ['https://spreadsheets.google.com/feeds']
+
+    credentials = ServiceAccountCredentials.from_json_keyfile_name(
+        'myproject.json', scope)
+    
     gc = gspread.authorize(credentials)
 
     return gc
