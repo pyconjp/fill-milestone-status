@@ -4,3 +4,12 @@ Unreleased
 Release Notes - 2016-08-01
 --------------------------
 - [SAR-1194] add illegal issue_id support
+
+Release Notes - 2016-03-14
+--------------------------
+- [SAR-201] add priority and update date to spreadsheet
+
+Release Notes - 2016-03-12
+--------------------------
+- [SAR-170] release
+
